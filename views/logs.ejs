@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Logs - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .nav a {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav a:hover {
+            background: #764ba2;
+        }
+
+        .nav a.active {
+            background: #764ba2;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .filters h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-item input,
+        .filter-item select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .filter-item input:focus,
+        .filter-item select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .filter-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .table-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-incoming { background: #d4edda; color: #155724; }
+        .badge-outgoing { background: #d1ecf1; color: #0c5460; }
+        .badge-missed { background: #f8d7da; color: #721c24; }
+        .badge-rejected { background: #f8d7da; color: #721c24; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .highlight {
+            background: #fff3cd !important;
+        }
+
+        .summary {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .summary h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .summary p {
+            color: #666;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📞 Call Logs</h1>
+            <p>View and filter call logs from all devices</p>
+            <div class="nav">
+                <a href="/">Dashboard</a>
+                <a href="/devices">Devices</a>
+                <a href="/logs" class="active">All Logs</a>
+            </div>
+        </div>
+
+        <div class="filters">
+            <h3>Filters</h3>
+            <div class="filter-grid">
+                <div class="filter-item">
+                    <label>Phone Number</label>
+                    <input type="text" id="filterPhoneNumber" placeholder="e.g., +1234567890" value="<%= phoneNumber %>">
+                </div>
+                <div class="filter-item">
+                    <label>Call Type</label>
+                    <select id="filterCallType">
+                        <option value="">All Types</option>
+                        <option value="INCOMING">Incoming</option>
+                        <option value="OUTGOING">Outgoing</option>
+                        <option value="MISSED">Missed</option>
+                        <option value="REJECTED">Rejected</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Limit Results</label>
+                    <select id="filterLimit">
+                        <option value="50">50 records</option>
+                        <option value="100" selected>100 records</option>
+                        <option value="200">200 records</option>
+                        <option value="500">500 records</option>
+                        <option value="1000000">100000 records</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+                <button class="btn btn-secondary" onclick="clearFilters()">Clear All</button>
+            </div>
+        </div>
+
+        <div id="summarySection" style="display: none;">
+            <div class="summary">
+                <h4>Summary for <span id="summaryNumber"></span></h4>
+                <p>Total Calls: <strong id="summaryTotal">0</strong></p>
+                <p>Incoming: <strong id="summaryIncoming">0</strong> | Outgoing: <strong id="summaryOutgoing">0</strong> | Missed: <strong id="summaryMissed">0</strong></p>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h2>Call Logs <span id="resultCount"></span></h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Phone Number</th>
+                        <th>Contact Name</th>
+                        <th>Type</th>
+                        <th>Duration</th>
+                        <th>Device</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTable">
+                    <tr>
+                        <td colspan="6" class="loading">Loading call logs...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentFilters = {
+            phoneNumber: '<%= phoneNumber %>',
+            callType: '',
+            limit: 100
+        };
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+
+        function formatDuration(seconds) {
+            if (seconds === 0) return '-';
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        async function loadCallLogs() {
+            try {
+                let url = '/api/call-logs?';
+                const params = new URLSearchParams();
+                
+                if (currentFilters.phoneNumber) {
+                    params.append('phoneNumber', currentFilters.phoneNumber);
+                }
+                if (currentFilters.callType) {
+                    params.append('callType', currentFilters.callType);
+                }
+                params.append('limit', currentFilters.limit);
+                
+                url += params.toString();
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                const tableBody = document.getElementById('logsTable');
+                const resultCount = document.getElementById('resultCount');
+                tableBody.innerHTML = '';
+                
+                if (data.callLogs.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="loading">No call logs found</td></tr>';
+                    resultCount.textContent = '';
+                    return;
+                }
+                
+                resultCount.textContent = `(${data.count} results)`;
+                
+                // Show summary if filtering by phone number
+                if (currentFilters.phoneNumber) {
+                    showSummary(data.callLogs, currentFilters.phoneNumber);
+                } else {
+                    document.getElementById('summarySection').style.display = 'none';
+                }
+                
+                data.callLogs.forEach(log => {
+                    const row = document.createElement('tr');
+                    const isHighlighted = currentFilters.phoneNumber && 
+                                        log.phone_number === currentFilters.phoneNumber;
+                    
+                    if (isHighlighted) {
+                        row.className = 'highlight';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${formatDate(log.call_date)}</td>
+                        <td>${log.phone_number}</td>
+                        <td>${log.contact_name || 'Unknown'}</td>
+                        <td><span class="badge badge-${log.call_type.toLowerCase()}">${log.call_type}</span></td>
+                        <td>${formatDuration(log.call_duration)}</td>
+                        <td>${log.device_name || log.device_id}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading call logs:', error);
+                const tableBody = document.getElementById('logsTable');
+                tableBody.innerHTML = '<tr><td colspan="6" class="loading">Error loading call logs</td></tr>';
+            }
+        }
+
+        function showSummary(logs, phoneNumber) {
+            const summary = {
+                total: logs.length,
+                incoming: logs.filter(l => l.call_type === 'INCOMING').length,
+                outgoing: logs.filter(l => l.call_type === 'OUTGOING').length,
+                missed: logs.filter(l => l.call_type === 'MISSED').length
+            };
+            
+            document.getElementById('summaryNumber').textContent = phoneNumber;
+            document.getElementById('summaryTotal').textContent = summary.total;
+            document.getElementById('summaryIncoming').textContent = summary.incoming;
+            document.getElementById('summaryOutgoing').textContent = summary.outgoing;
+            document.getElementById('summaryMissed').textContent = summary.missed;
+            document.getElementById('summarySection').style.display = 'block';
+        }
+
+        function applyFilters() {
+            currentFilters.phoneNumber = document.getElementById('filterPhoneNumber').value.trim();
+            currentFilters.callType = document.getElementById('filterCallType').value;
+            currentFilters.limit = document.getElementById('filterLimit').value;
+            
+            loadCallLogs();
+        }
+
+        function clearFilters() {
+            document.getElementById('filterPhoneNumber').value = '';
+            document.getElementById('filterCallType').value = '';
+            document.getElementById('filterLimit').value = '100';
+            
+            currentFilters = {
+                phoneNumber: '',
+                callType: '',
+                limit: 100
+            };
+            
+            loadCallLogs();
+        }
+
+        // Load data on page load
+        loadCallLogs();
+
+        // Refresh every 30 seconds
+        setInterval(loadCallLogs, 30000);
+    </script>
+</body>
+</html>

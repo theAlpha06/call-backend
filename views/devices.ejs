@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devices - Call Log Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .nav a {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav a:hover {
+            background: #764ba2;
+        }
+
+        .nav a.active {
+            background: #764ba2;
+        }
+
+        .table-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status.online {
+            background: #28a745;
+        }
+
+        .status.offline {
+            background: #dc3545;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .action-btn {
+            padding: 5px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Registered Devices</h1>
+            <p>Manage and monitor all registered devices</p>
+            <div class="nav">
+                <a href="/">Dashboard</a>
+                <a href="/devices" class="active">Devices</a>
+                <a href="/logs">All Logs</a>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h2>All Devices</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Device ID</th>
+                        <th>Device Name</th>
+                        <th>Phone Number</th>
+                        <th>Registered</th>
+                        <th>Last Heartbeat</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="devicesTable">
+                    <tr>
+                        <td colspan="7" class="loading">Loading devices...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Never';
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+
+        function isOnline(lastHeartbeat) {
+            if (!lastHeartbeat) return false;
+            const now = Date.now();
+            const fiveMinutes = 5 * 60 * 1000;
+            return (now - lastHeartbeat) < fiveMinutes;
+        }
+
+        async function loadDevices() {
+            try {
+                const response = await fetch('/api/devices');
+                const data = await response.json();
+                
+                const tableBody = document.getElementById('devicesTable');
+                tableBody.innerHTML = '';
+                
+                if (data.devices.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="loading">No devices registered yet</td></tr>';
+                    return;
+                }
+                
+                data.devices.forEach(device => {
+                    const online = isOnline(device.last_heartbeat);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <span class="status ${online ? 'online' : 'offline'}"></span>
+                            ${online ? 'Online' : 'Offline'}
+                        </td>
+                        <td>${device.device_id}</td>
+                        <td>${device.device_name}</td>
+                        <td>${device.phone_number || 'Unknown'}</td>
+                        <td>${formatDate(device.registered_at)}</td>
+                        <td>${formatDate(device.last_heartbeat)}</td>
+                        <td>
+                            <a href="/logs?deviceId=${encodeURIComponent(device.device_id)}" class="action-btn">View Logs</a>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading devices:', error);
+                const tableBody = document.getElementById('devicesTable');
+                tableBody.innerHTML = '<tr><td colspan="7" class="loading">Error loading devices</td></tr>';
+            }
+        }
+
+        // Load data on page load
+        loadDevices();
+
+        // Refresh every 30 seconds
+        setInterval(loadDevices, 30000);
+    </script>
+</body>
+</html>
