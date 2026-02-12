@@ -326,6 +326,15 @@ app.get('/api/statistics', (req, res) => {
     });
 });
 
+app.delete('/api/admin/clear-db', (req, res) => {
+    db.serialize(() => {
+        db.run(`DELETE FROM call_logs`);
+        db.run(`DELETE FROM devices`);
+    });
+
+    res.json({ success: true, message: 'Database cleared successfully' });
+});
+
 // Web Dashboard Routes
 app.get('/', (req, res) => {
     res.render('dashboard');
