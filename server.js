@@ -27,7 +27,7 @@ const db = new sqlite3.Database('./call_logs.db', async (err) => {
             console.log('✓ Database initialized successfully');
             
             // Start server only after database is ready
-            app.listen(PORT, () => {
+            app.listen(PORT, '0.0.0.0', () => {
                 console.log(`\n========================================`);
                 console.log(`Server running on http://localhost:${PORT}`);
                 console.log(`Admin Dashboard: http://localhost:${PORT}`);
