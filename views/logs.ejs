@@ -345,10 +345,10 @@
                     }
                     
                     row.innerHTML = `
-                        <td>${formatDate(log.call_date)}</td>
+                        <td>${formatDate(log.callDate)}</td>
                         <td>${log.phoneNumber}</td>
                         <td>${log.contactName || 'Unknown'}</td>
-                        <td><span class="badge badge-${log.call_type.toLowerCase()}">${log.call_type}</span></td>
+                        <td><span class="badge badge-${log.callType.toLowerCase()}">${log.callType}</span></td>
                         <td>${formatDuration(log.callDuration)}</td>
                         <td>${log.deviceName || log.deviceId}</td>
                     `;
@@ -364,9 +364,9 @@
         function showSummary(logs, phoneNumber) {
             const summary = {
                 total: logs.length,
-                incoming: logs.filter(l => l.call_type === 'INCOMING').length,
-                outgoing: logs.filter(l => l.call_type === 'OUTGOING').length,
-                missed: logs.filter(l => l.call_type === 'MISSED').length
+                incoming: logs.filter(l => l.callType === 'INCOMING').length,
+                outgoing: logs.filter(l => l.callType === 'OUTGOING').length,
+                missed: logs.filter(l => l.callType === 'MISSED').length
             };
             
             document.getElementById('summaryNumber').textContent = phoneNumber;
