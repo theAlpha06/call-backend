@@ -264,6 +264,7 @@
             try {
                 const response = await fetch('/api/statistics');
                 const stats = await response.json();
+                console.log('Statistics:', stats);
 
                 // Update stat cards
                 document.getElementById('totalDevices').textContent = stats.totalDevices;
@@ -288,7 +289,7 @@
                     const bar = document.createElement('div');
                     bar.className = 'chart-bar';
                     bar.innerHTML = `
-                        <div class="chart-label">${item.call_type}</div>
+                        <div class="chart-label">${item._id}</div>
                         <div class="chart-bar-fill" style="width: ${percentage}%">
                             <span>${item.count}</span>
                         </div>
@@ -303,10 +304,10 @@
                 stats.topContacts.forEach(contact => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${contact.phone_number}</td>
-                        <td>${contact.contact_name || 'Unknown'}</td>
+                        <td>${contact._id}</td>
+                        <td>${contact.contactName || 'Unknown'}</td>
                         <td>${contact.count}</td>
-                        <td><a href="/logs/${encodeURIComponent(contact.phone_number)}" style="color: #667eea;">View Details</a></td>
+                        <td><a href="/logs/${encodeURIComponent(contact.phoneNumber)}" style="color: #667eea;">View Details</a></td>
                     `;
                     tableBody.appendChild(row);
                 });
