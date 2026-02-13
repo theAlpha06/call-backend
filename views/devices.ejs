@@ -196,13 +196,13 @@
                             <span class="status ${online ? 'online' : 'offline'}"></span>
                             ${online ? 'Online' : 'Offline'}
                         </td>
-                        <td>${device.device_id}</td>
-                        <td>${device.device_name}</td>
-                        <td>${device.phone_number || 'Unknown'}</td>
-                        <td>${formatDate(device.registered_at)}</td>
-                        <td>${formatDate(device.last_heartbeat)}</td>
+                        <td>${device.deviceId}</td>
+                        <td>${device.deviceName || 'Unknown'}</td>
+                        <td>${device.phoneNumber || 'Unknown'}</td>
+                        <td>${formatDate(device.registeredAt)}</td>
+                        <td>${formatDate(device.lastHeartbeat)}</td>
                         <td>
-                            <a href="/logs?deviceId=${encodeURIComponent(device.device_id)}" class="action-btn">View Logs</a>
+                            <a href="/logs?deviceId=${encodeURIComponent(device.deviceId)}" class="action-btn">View Logs</a>
                         </td>
                     `;
                     tableBody.appendChild(row);
