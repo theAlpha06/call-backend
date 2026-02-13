@@ -61,6 +61,10 @@ const callLogSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 callLogSchema.index({ callDate: -1 });
+callLogSchema.index(
+  { deviceId: 1, phoneNumber: 1, callDate: 1 },
+  { unique: true }
+);
 
 const Device = mongoose.model('Device', deviceSchema);
 const CallLog = mongoose.model('CallLog', callLogSchema);
