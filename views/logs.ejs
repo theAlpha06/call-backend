@@ -338,7 +338,7 @@
                 data.callLogs.forEach(log => {
                     const row = document.createElement('tr');
                     const isHighlighted = currentFilters.phoneNumber && 
-                                        log.phone_number === currentFilters.phoneNumber;
+                                        log.phoneNumber === currentFilters.phoneNumber;
                     
                     if (isHighlighted) {
                         row.className = 'highlight';
@@ -346,11 +346,11 @@
                     
                     row.innerHTML = `
                         <td>${formatDate(log.call_date)}</td>
-                        <td>${log.phone_number}</td>
-                        <td>${log.contact_name || 'Unknown'}</td>
+                        <td>${log.phoneNumber}</td>
+                        <td>${log.contactName || 'Unknown'}</td>
                         <td><span class="badge badge-${log.call_type.toLowerCase()}">${log.call_type}</span></td>
-                        <td>${formatDuration(log.call_duration)}</td>
-                        <td>${log.device_name || log.device_id}</td>
+                        <td>${formatDuration(log.callDuration)}</td>
+                        <td>${log.deviceName || log.deviceId}</td>
                     `;
                     tableBody.appendChild(row);
                 });
