@@ -307,7 +307,7 @@
                         <td>${contact._id}</td>
                         <td>${contact.contactName || 'Unknown'}</td>
                         <td>${contact.count}</td>
-                        <td><a href="/logs/${encodeURIComponent(contact.phoneNumber)}" style="color: #667eea;">View Details</a></td>
+                        <td><a href="/logs/${encodeURIComponent(contact._id)}" style="color: #667eea;">View Details</a></td>
                     `;
                     tableBody.appendChild(row);
                 });
