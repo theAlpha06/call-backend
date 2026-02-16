@@ -189,7 +189,7 @@
                 }
                 
                 data.devices.forEach(device => {
-                    const online = isOnline(device.last_heartbeat);
+                    const online = isOnline(device.lastHeartbeat);
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>
